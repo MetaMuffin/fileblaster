@@ -12,17 +12,17 @@ const devMiddleware = WebpackDevMiddleware(compiler, {
 
 var app = express();
 
-app.use(express.text())
 
 app.use("/static/script", estatic(join(__dirname, "../../public/dist")))
 app.use("/static/style", estatic(join(__dirname, "../../public/css")))
+app.use("/static/assets", estatic(join(__dirname, "../../public/assets")))
 
 app.get("/", function (req, res, next) {
   res.sendFile(join(__dirname, "../../public/index.html"))
 });
 
 app.get("/favicon.ico", (req, res) => {
-  res.sendFile(join(__dirname, "../../public/favicon.ico"))
+  res.sendFile(join(__dirname, "../../public/assets/favicon.ico"))
 })
 
 app.use("/js", devMiddleware)

@@ -1,3 +1,4 @@
+import { Logger } from "./logger"
 
 
 export interface Activity {
@@ -18,6 +19,7 @@ var activity_stack:ActivityBuild[] = []
 const get_activity_root = () => document.getElementById("activity-root")
 
 export function pushActivity(activity: Activity) {
+    Logger.log(["activity"], `Pushed activity: ${activity.name}`)
     var build = buildScreen(activity)
     activity_stack.push(build)
     get_activity_root()?.appendChild(build.element)
@@ -26,6 +28,7 @@ export function pushActivity(activity: Activity) {
 export function popActivity() {
     var s = activity_stack.pop()
     if (s) {
+        Logger.log(["activity"], `Popped activity: ${s.source.name}`)
         s.element.classList.remove("activity-active")
         s.element.classList.add("activity-inactive")
         setTimeout(() => {

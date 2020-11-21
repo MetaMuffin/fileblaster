@@ -1,0 +1,59 @@
+{
+    "customers": {
+        "name": {
+            "type": "string"
+        },
+        "surname": {
+            "type": "string"
+        },
+        "age": {
+            "type": "number",
+            "contrains": {
+                "min": 0,
+                "max": 150
+            }
+        },
+        "email": {
+            "type": "string",
+            "contrains": {
+                "regex": "\\w+@\\w+\\.\\w+"
+            }
+        },
+        "fruit": {
+            "type": "string",
+            "contrains": {
+                "included": ["Apple", "Banana", "a"]
+            }
+        },
+        "interests": {
+            "type": "array",
+            "array": {
+                "type": "string",
+                "contrains": {
+                    "included": ["Programming", "Gaming", "Eating", "Sleep"]
+                }
+            }
+        },
+        "orders": {
+            "type": "array",
+            "array": {
+                "type": "ref",
+                "ref": {
+                    "collection": "orders"
+                }
+            }
+        }
+    },
+    "orders": {
+        "customer": {
+            "type":"ref",
+            "ref": {
+                "two-way": true,
+                "collection": "customers"
+            }
+        },
+        "article": {
+            "type": "string"
+        }
+    }
+}

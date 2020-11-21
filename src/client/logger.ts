@@ -4,14 +4,16 @@ export class Logger {
     private static STYLES: { [key: string]: string } = {
         err: "color: black; background-color: red",
         perf: "color: #FF0000",
-        screen: "color: #00FF00",        
+        activity: "color: #00FF00",
         editor: "color: #FF8800",
+        websocket: "color: #00EEEE",
     }
 
 
-    static log(tags: string[], text: string) {
+    static log(tags: string[], text: string, attachments: any = undefined) {
         const tagsc = this.composeTags(tags);
         console.log(tagsc.text + ` %c${text}`, ...tagsc.styles, '')
+        if (attachments) console.log(attachments)
     }
     private static composeTags(tags: string[]): { styles: string[], text: string } {
         return {

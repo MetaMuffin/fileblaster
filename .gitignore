@@ -1,2 +1,4 @@
 /node_modules
 /public/dist
+/public/assets/*.png
+/public/assets/favicon.ico

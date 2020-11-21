@@ -1,21 +1,23 @@
 import { pushActivity, popActivity } from "./screen"
+import { WS } from "./websocket"
 
 
-function init() {
+async function init() {
+    WS.c = new WS();
+    await WS.c.waitReady().catch(() => {
+        pushActivity({
+            element: document.createElement("div"),
+            name: "ws-error",
+            title: "Websocket error.",
+            type: "fullscreen"
+        })
+    })
     pushActivity({
         element: document.createElement("div"),
         name: "main",
         title: "fileblaster",
         type: "fullscreen"
     })
-    setTimeout(() => {
-        pushActivity({
-            element: document.createElement("div"),
-            name: "test",
-            title: "I can be canceled!",
-            oncancel: () => true
-        })
-    },300)
 }
 
 window.onload = init
