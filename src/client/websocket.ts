@@ -1,21 +1,31 @@
 import { WSPacket } from "../wspacket"
 import { EventEmitter } from "events"
 import { Logger } from "./logger"
+import { pushActivity } from "./screen";
+
+export function createWS(): WS {
+    var ws = new WebSocket(`ws://${window.location.host}/api/ws`)
+    Logger.log(["websocket"],"Connecting to Websocket server....")
+    return new WS(ws)
+}
+
 
 
 export class WS extends EventEmitter {
     public static c: WS;
     private ws: WebSocket
-    constructor() {
+    constructor(ws: WebSocket) {
         super()
-        this.ws = new WebSocket(`ws://${window.location.host}/api/ws`)
+        this.ws = ws
         this.ws.onmessage = (ev) => this.onmessage(ev.data)
+        
     }
 
     async waitReady(): Promise<void> {
-        if (this.ws.OPEN) return
+        if (this.ws.OPEN) return Logger.log(["websocket"],"Connected very fast!")
         return new Promise((resolve, reject) => {
             this.ws.onopen = () => {
+                Logger.log(["websocket"],"Connected!")
                 resolve()
             }
             this.ws.onerror = reject

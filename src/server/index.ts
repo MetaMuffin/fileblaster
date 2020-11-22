@@ -3,6 +3,11 @@ import { join } from "path";
 import { static as estatic } from "express"
 import Webpack from "webpack"
 import WebpackDevMiddleware from "webpack-dev-middleware"
+import expressWs from "express-ws";
+import { wsServerConnect } from "./websocket";
+import { ServerDB } from "./database";
+
+ServerDB.loadScheme()
 
 const webpackConfig = require('../../webpack.config');
 const compiler = Webpack(webpackConfig)
@@ -11,6 +16,7 @@ const devMiddleware = WebpackDevMiddleware(compiler, {
 })
 
 var app = express();
+var appws = expressWs(app).app;
 
 
 app.use("/static/script", estatic(join(__dirname, "../../public/dist")))
@@ -27,6 +33,7 @@ app.get("/favicon.ico", (req, res) => {
 
 app.use("/js", devMiddleware)
 
+appws.ws("/api/ws", wsServerConnect)
 
 
 app.use((req, res) => {

@@ -1,17 +1,10 @@
 import { pushActivity, popActivity } from "./screen"
-import { WS } from "./websocket"
+import { WS, createWS } from "./websocket"
 
 
 async function init() {
-    WS.c = new WS();
-    await WS.c.waitReady().catch(() => {
-        pushActivity({
-            element: document.createElement("div"),
-            name: "ws-error",
-            title: "Websocket error.",
-            type: "fullscreen"
-        })
-    })
+    WS.c = createWS()    
+    await WS.c.waitReady()
     pushActivity({
         element: document.createElement("div"),
         name: "main",
