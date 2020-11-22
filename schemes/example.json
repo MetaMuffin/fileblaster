@@ -8,20 +8,20 @@
         },
         "age": {
             "type": "number",
-            "contrains": {
+            "contraints": {
                 "min": 0,
                 "max": 150
             }
         },
         "email": {
             "type": "string",
-            "contrains": {
+            "contraints": {
                 "regex": "\\w+@\\w+\\.\\w+"
             }
         },
         "fruit": {
             "type": "string",
-            "contrains": {
+            "contraints": {
                 "included": ["Apple", "Banana", "a"]
             }
         },
@@ -29,7 +29,7 @@
             "type": "array",
             "array": {
                 "type": "string",
-                "contrains": {
+                "contraints": {
                     "included": ["Programming", "Gaming", "Eating", "Sleep"]
                 }
             }
