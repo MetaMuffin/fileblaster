@@ -6,13 +6,16 @@ import { dev_events } from "./dev"
 
 
 export function wsServerConnect(ws: lws) {
-    dev_events.on("packet",(data) => {
-        console.log("Sending dev packet to client");
+    const devpackethandler = (data:any) => {
         ws.send(JSON.stringify({
             data, id: "dev",
             name: "dev-packet"
         }))
-    })
+    }
+    dev_events.on("packet",devpackethandler)
+    ws.onclose = () => {
+        dev_events.off("packet",devpackethandler)
+    }
     ws.onopen = () => {
         console.log("Somebody connected!!!")
     }

@@ -8,6 +8,7 @@ export class Logger {
         activity: "color: #00FF00",
         editor: "color: #FF8800",
         websocket: "color: #00EEEE",
+        "dev-mode": "color: #FF00FF",
     }
 
 

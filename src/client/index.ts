@@ -5,10 +5,12 @@ import { buildCollectionSelectorActivity as collectionSelectorActivity } from ".
 import { Logger } from "./logger";
 import { getAllCollectionNames } from "./helper";
 import { collectionMainActivity } from "./activities/collectionMain";
+import { devInit } from "./dev";
 
 
 async function init() {
     State.ws = await createWS()
+    devInit()
     pushActivity(collectionSelectorActivity((sel) => {
         pushActivity(collectionMainActivity(sel))
         return false
