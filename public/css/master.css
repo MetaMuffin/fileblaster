@@ -2,9 +2,14 @@
 
 @import "./activity-fs.css";
 @import "./activity-snackbar.css";
+@import "./inputs.css";
+@import "./entry-form.css";
 
 * {
   user-select: none;
+}
+input[type=text],input[type=number] {
+  user-select: auto;
 }
 
 div, body, html {
@@ -27,7 +32,7 @@ body {
 
 
 .collection-list {
-  
+  list-style-type: none;
 }
 
 .collection-list li {

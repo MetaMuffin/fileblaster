@@ -2,8 +2,17 @@
 import * as lws from "ws"
 import { WSPacket } from "../wspacket"
 import { ServerDB } from "./database"
+import { dev_events } from "./dev"
+
 
 export function wsServerConnect(ws: lws) {
+    dev_events.on("packet",(data) => {
+        console.log("Sending dev packet to client");
+        ws.send(JSON.stringify({
+            data, id: "dev",
+            name: "dev-packet"
+        }))
+    })
     ws.onopen = () => {
         console.log("Somebody connected!!!")
     }

@@ -45,7 +45,7 @@ export function popActivity() {
     }
 }
 
-export function removePartialOverlay(a: Activity) {
+export function removePatialActivity(a: Activity) {
     Logger.log(["activity"], `Popped partial overlay activity: ${a.name}`)
     var index = activity_partial_stack.findIndex(e => e.source.element == a.element)
     if (index == -1) return Logger.log(["warn", "activity"], "Partial Overlay not found to remove it.")
@@ -97,7 +97,7 @@ export function buildSnackbarActivity(source: Activity): ActivityBuild {
 
 
     setTimeout(() => {
-        removePartialOverlay(source)
+        removePatialActivity(source)
     }, source.snackbarTimeout || 5000)
 
     snackbar.append(source.element)

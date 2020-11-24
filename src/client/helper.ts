@@ -12,3 +12,8 @@ export function getAllCollectionNames(scheme: Scheme): string[] {
     }
     return colnames
 }
+
+var idcounter = 0
+export function newTempID(): string {
+    return `dom_id${idcounter += 2}`
+}

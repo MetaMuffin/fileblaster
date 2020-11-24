@@ -6,6 +6,7 @@ import WebpackDevMiddleware from "webpack-dev-middleware"
 import expressWs from "express-ws";
 import { wsServerConnect } from "./websocket";
 import { ServerDB } from "./database";
+import { devModeInit } from "./dev";
 
 ServerDB.loadScheme()
 
@@ -14,6 +15,7 @@ const compiler = Webpack(webpackConfig)
 const devMiddleware = WebpackDevMiddleware(compiler, {
   publicPath: webpackConfig.output.publicPath
 })
+devModeInit()
 
 var app = express();
 var appws = expressWs(app).app;

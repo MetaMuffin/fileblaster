@@ -9,14 +9,19 @@ export interface SchemeCollection {
     [key: string]: SchemeValue
 }
 
-export type SchemeValueType = "string" | "number" | "array" | "map" | "ref"
+export type SchemeValueType = "string" | "number" | "array" | "map" | "ref" | "date"
 
 export interface SchemeValue {
     type: SchemeValueType,
     array?: SchemeValue
     ref?: SchemeTypeRef
     map?: SchemeTypeMap
-    contraints?: SchemeConstraints
+    contraints?: SchemeConstraints,
+    display?: SchemeDisplay,
+}
+
+export interface SchemeDisplay {
+    unit: string
 }
 
 export interface SchemeConstraints {

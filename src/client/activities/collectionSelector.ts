@@ -1,7 +1,7 @@
 import { getAllCollectionNames } from "../helper"
 import { WS } from "../websocket"
 import { State } from ".."
-import { Activity, popActivity } from "../activity"
+import { removePatialActivity, popActivity, Activity } from "../activity"
 
 
 

@@ -3,8 +3,8 @@
         "name": {
             "type": "string"
         },
-        "surname": {
-            "type": "string"
+        "birthdate": {
+            "type": "date"
         },
         "age": {
             "type": "number",

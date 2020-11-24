@@ -8,7 +8,7 @@ import { collectionMainActivity } from "./activities/collectionMain";
 
 
 async function init() {
-    State.ws = await createWS()    
+    State.ws = await createWS()
     pushActivity(collectionSelectorActivity((sel) => {
         pushActivity(collectionMainActivity(sel))
         return false
@@ -20,9 +20,8 @@ export class State {
     public static scheme: Scheme;
 }
 
-
-
 window.onload = init
 
 //@ts-ignore
 window.b = getAllCollectionNames
+
