@@ -1,60 +1,91 @@
 import { WSPacket } from "../wspacket"
 import { EventEmitter } from "events"
 import { Logger } from "./logger"
-import { pushActivity } from "./screen";
+import { pushActivity, pushErrorSnackbar } from "./activity";
+import { Scheme } from "../scheme";
+import { State } from ".";
 
-export function createWS(): WS {
-    var ws = new WebSocket(`ws://${window.location.host}/api/ws`)
+export async function createWS(): Promise<WS> {
     Logger.log(["websocket"],"Connecting to Websocket server....")
-    return new WS(ws)
+    var wsi = new WebSocket(`ws://${window.location.host}/api/ws`)
+    var ws = new WS(wsi)
+    await ws.waitReady()
+    return ws;
 }
 
 
 
 export class WS extends EventEmitter {
-    public static c: WS;
     private ws: WebSocket
+
+
     constructor(ws: WebSocket) {
         super()
         this.ws = ws
         this.ws.onmessage = (ev) => this.onmessage(ev.data)
-        
+        this.ws.onopen = () => {
+            Logger.log(["websocket"],"Connected!")
+            this.emit("preready")
+        }
+        this.ws.onerror = (e) => this.emit("error",e)
+        this.once("preready", async () => {
+            Logger.log(["websocket"],"Fetching scheme data...")
+            var oscheme = await this.getScheme()
+            if (!oscheme) return pushErrorSnackbar("Internal error. Report this error and reload this page if something doesn't work anymore.")
+            State.scheme = oscheme
+            Logger.log(["websocket"],"Ready!")
+            this.emit("ready")
+        })
     }
 
     async waitReady(): Promise<void> {
-        if (this.ws.OPEN) return Logger.log(["websocket"],"Connected very fast!")
+        if (State.scheme) {
+            Logger.log(["websocket"],"Ready very fast!")
+            return
+        }
         return new Promise((resolve, reject) => {
-            this.ws.onopen = () => {
-                Logger.log(["websocket"],"Connected!")
+            this.on("ready", () => {
                 resolve()
-            }
-            this.ws.onerror = reject
+            })
         })
     }
 
     private onmessage(data: string) {
         var j: WSPacket = JSON.parse(data)
-        this.emit(j.name, j.data)
+        this.emit("packet-"+j.id, j)
     }
 
-    private async recvPacket(name: string): Promise<any> {
+    private async recvPacket(id: number): Promise<WSPacket> {
         return new Promise((r) => {
-            this.once(name, (d) => {
-                Logger.log(["websocket"],`Received a ${d.name} packet`, d.data)
-                r(d.data)
+            this.once("packet-"+id, (d) => {
+                Logger.log(["websocket"],`Received a ${d.name} packet: `, d.data)
+                r(d)
             })
         })
     }
 
-    private sendPacket(name: string, data: any) {
+    private sendPacket(name: string, data: any): number {
         Logger.log(["websocket"],`Sending a ${name} packet:`, data)
-        this.ws.send(JSON.stringify({ name, data }))
+        var id = Math.floor(Math.random()*1000000)
+        this.ws.send(JSON.stringify({ name, data, id }))
+        return id
+    }
+
+    async packetIO(name:string, data:any): Promise<any | undefined> {
+        var id = this.sendPacket(name,data)
+        var res = await this.recvPacket(id)
+        if (res.name == "error") {
+            Logger.log(["err","websocket"],`SERVER RESPONDED WITH ERROR: ${res.data}`)
+            return undefined
+        }
+        return res.data
     }
 
 
-    async getCollectionList(): Promise<string[]> {
-        this.sendPacket
-        return await this.recvPacket("collection-list")
+    async getScheme(): Promise<Scheme | undefined> {
+        return await this.packetIO("scheme",{})
     }
+
+
 
 }

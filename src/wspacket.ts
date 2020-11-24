@@ -2,5 +2,6 @@
 
 export interface WSPacket {
     name: string,
-    data: any
+    data: any,
+    id: number
 }

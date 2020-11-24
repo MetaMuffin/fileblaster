@@ -9,8 +9,10 @@ export interface SchemeCollection {
     [key: string]: SchemeValue
 }
 
+export type SchemeValueType = "string" | "number" | "array" | "map" | "ref"
+
 export interface SchemeValue {
-    type: string,
+    type: SchemeValueType,
     array?: SchemeValue
     ref?: SchemeTypeRef
     map?: SchemeTypeMap
@@ -25,7 +27,8 @@ export interface SchemeConstraints {
 }
 
 export interface SchemeTypeRef {
-    collection: string
+    collection: string,
+    merge: string
 }
 
 export interface SchemeTypeMap {
@@ -33,10 +36,17 @@ export interface SchemeTypeMap {
     value: SchemeValue
 }
 
+export interface SchemeInputBuild {
+    collect: () => any,
+    element: HTMLElement
+}
+
 const err = (message: string) => {
     Logger.log(["err", "scheme"], message)
     return false
 }
+
+
 
 export function validate_scheme(scheme: any): boolean {
 

@@ -1,0 +1,40 @@
+.activity-snackbar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: rgb(146, 28, 28);
+  color: white;
+  padding: 0.5em;
+  padding-left: 1em;
+}
+
+.activity-snackbar.activity-active {
+  animation-name: snackbar-in;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+.activity-snackbar.activity-inactive {
+  animation-name: snackbar-out;
+  animation-duration: 2s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes snackbar-in {
+  0% {
+    bottom: -100%;
+  }
+  100% {
+    bottom: 0px;
+  }
+}
+
+@keyframes snackbar-out {
+  0% {
+    bottom: 0px;
+  }
+  100% {
+    bottom: -100%;
+  }
+}
