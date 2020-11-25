@@ -27,7 +27,9 @@ export class WS extends EventEmitter {
             Logger.log(["websocket"],"Connected!")
             this.emit("preready")
         }
-        this.ws.onerror = (e) => this.emit("error",e)
+        this.ws.onclose = (e) => {
+            pushErrorSnackbar("Connection to server was interrupted. Please reload this page.")
+        }
         this.once("preready", async () => {
             Logger.log(["websocket"],"Fetching scheme data...")
             var oscheme = await this.getScheme()

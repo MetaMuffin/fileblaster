@@ -1,9 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
-@import "./activity-fs.css";
-@import "./activity-snackbar.css";
-@import "./inputs.css";
-@import "./entry-form.css";
 
 /* aa */
 
@@ -43,4 +39,61 @@ body {
 }
 .collection-list li p {
   font-size: larger;
+}
+
+
+.shake {
+  position: relative;
+  animation-name: shake-danger;
+  animation-iteration-count: 20;
+  animation-duration: 0.2s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  animation-delay: 0s;
+}
+
+.shake .save-snackbar {
+  animation-name: blink-danger;
+  animation-iteration-count: 3;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes blink-danger {
+  0% {
+    background-color: inherit
+  }
+  50% {
+    background-color: red
+  }
+  100% {
+    background-color: inherit
+  }
+}
+
+@keyframes shake-danger {
+  0% {
+    top: -0em;
+    left: -0em;
+  }
+  20% {
+    top: -0.5em;
+    left: -0.5em;
+  }
+  40% {
+    top: 0.5em;
+    left: 0em;
+  }
+  60% {
+    top: -0.5em;
+    left: 0.5em;
+  }
+  80% {
+    top: 0.5em;
+    left: -0.5em;
+  }
+  100% {
+    top: 0em;
+    left: 0em;
+  }
 }

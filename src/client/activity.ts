@@ -7,7 +7,7 @@ export interface Activity {
     title?: string,
     type?: "floating" | "fullscreen" | "snackbar",
     oncancel?: () => boolean,
-    snackbarTimeout?: number
+    snackbarTimeout?: number,
 }
 
 export interface ActivityBuild {
@@ -45,7 +45,7 @@ export function popActivity() {
     }
 }
 
-export function removePatialActivity(a: Activity) {
+export function popPatialActivity(a: Activity) {
     Logger.log(["activity"], `Popped partial overlay activity: ${a.name}`)
     var index = activity_partial_stack.findIndex(e => e.source.element == a.element)
     if (index == -1) return Logger.log(["warn", "activity"], "Partial Overlay not found to remove it.")
@@ -74,7 +74,8 @@ export function buildFullscreenActivity(source: Activity): ActivityBuild {
         cancelb.onclick = () => {
             if (!source.oncancel) return
             var shouldpop = source.oncancel()
-            if (shouldpop) popActivity()
+            if (!shouldpop) return
+            popActivity()
             cancelb.onclick = () => { }
         }
         cancelb.value = "X"
@@ -96,9 +97,9 @@ export function buildSnackbarActivity(source: Activity): ActivityBuild {
     source.element.classList.add("activity-content")
 
 
-    setTimeout(() => {
-        removePatialActivity(source)
-    }, source.snackbarTimeout || 5000)
+    if (source.snackbarTimeout) setTimeout(() => {
+        popPatialActivity(source)
+    }, source.snackbarTimeout)
 
     snackbar.append(source.element)
     return {

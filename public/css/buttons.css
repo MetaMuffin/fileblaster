@@ -1,0 +1,30 @@
+.btn-green {
+    background-color: rgb(0, 204, 54);
+	border-radius: 7px;
+	display: inline-block;
+	cursor: pointer;
+	color: white;
+	font-family: 'Roboto';
+	font-size: 20px;
+	padding: 16px 40px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.btn-danger {
+    background-color: transparent;
+    border-radius: 7px;
+    font-family: 'Roboto';
+    font-size: 20px;
+    color: white;
+    border: 5px solid red;
+    border-radius: 7px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.btn-danger:hover {
+    background: red;
+    color: black;
+    border: none;
+}

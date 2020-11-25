@@ -1,4 +1,4 @@
-import { removePatialActivity, Activity, pushActivity } from "../activity";
+import { popPatialActivity, Activity, pushActivity } from "../activity";
 import { entryForm } from "./entryForm";
 
 

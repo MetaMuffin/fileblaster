@@ -12,12 +12,13 @@ export interface SchemeCollection {
 export type SchemeValueType = "string" | "number" | "array" | "map" | "ref" | "date"
 
 export interface SchemeValue {
-    type: SchemeValueType,
+    type: SchemeValueType
+    optional?: boolean
     array?: SchemeValue
     ref?: SchemeTypeRef
     map?: SchemeTypeMap
     contraints?: SchemeConstraints,
-    display?: SchemeDisplay,
+    display?: SchemeDisplay
 }
 
 export interface SchemeDisplay {
@@ -25,25 +26,26 @@ export interface SchemeDisplay {
 }
 
 export interface SchemeConstraints {
-    min?: number,
-    max?: number,
+    min?: number
+    max?: number
     included?: Array<any>
     regex?: string
 }
 
 export interface SchemeTypeRef {
-    collection: string,
+    collection: string
     merge: string
 }
 
 export interface SchemeTypeMap {
-    key: SchemeValue,
+    key: SchemeValue
     value: SchemeValue
 }
 
 export interface SchemeInputBuild {
-    collect: () => any,
-    element: HTMLElement
+    collect: () => any
+    element: HTMLElement,
+    label_after?: boolean
 }
 
 const err = (message: string) => {

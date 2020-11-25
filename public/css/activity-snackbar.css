@@ -21,6 +21,14 @@
   animation-fill-mode: forwards;
 }
 
+.activity-snackbar input {
+  float: right;
+}
+
+.activity-snackbar p {
+  float: left;
+}
+
 @keyframes snackbar-in {
   0% {
     bottom: -100%;
