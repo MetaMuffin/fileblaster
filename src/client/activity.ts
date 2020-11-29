@@ -1,5 +1,6 @@
 import { EventEmitter } from "events"
 import { setDisabledRecursive } from "./helper"
+import { Keybindings } from "./keybindings"
 import { Logger } from "./logger"
 
 
@@ -9,22 +10,27 @@ export interface Activity {
     title?: string,
     type?: "floating" | "fullscreen" | "snackbar",
     oncancel?: () => boolean,
+    onpop?: () => any,
     snackbarTimeout?: number,
     events?: EventEmitter,
     snackbarTheme?: string,
+    _id?: number
 }
 
 export interface ActivityBuild {
     source: Activity,
-    element: HTMLElement
+    element: HTMLElement,
+    unbind?: () => any,
 }
 
-var activity_stack: ActivityBuild[] = []
+export var activity_stack: ActivityBuild[] = []
 var activity_partial_stack: ActivityBuild[] = []
 
 const get_activity_root = () => document.getElementById("activity-root")
 
-export function pushActivity(activity: Activity) {
+var activityEvents = new EventEmitter()
+
+export function pushActivity(activity: Activity, onpop: () => any = () => {}) {
     Logger.log(["activity"], `Pushed ${activity.type || "fullscreen (defaulted)"} activity: ${activity.name}`)
     var build;
     if (activity.type == "snackbar") build = buildSnackbarActivity(activity)
@@ -33,11 +39,18 @@ export function pushActivity(activity: Activity) {
     if (activity.type == "snackbar" || activity.type == "floating") activity_partial_stack.push(build)
     else activity_stack.push(build)
     get_activity_root()?.appendChild(build.element)
+
+    activityEvents.once(`pop-${activity_stack.length - 1}`, () => {
+        onpop()
+    })
 }
 
 export function popActivity() {
     var s = activity_stack.pop()
+    activityEvents.emit(`pop-${activity_stack.length}`)
     if (s) {
+        if (s.source.onpop) s.source.onpop()
+        if (s.unbind) s.unbind()
         Logger.log(["activity"], `Popped activity: ${s.source.name}`)
         s.element.classList.remove("activity-active")
         s.element.classList.add("activity-inactive")
@@ -57,6 +70,7 @@ export function popPatialActivity(a: Activity) {
     var [par] = activity_partial_stack.splice(index)
     par.element.classList.remove("activity-active")
     par.element.classList.add("activity-inactive")
+    if (a.onpop) a.onpop()
     setTimeout(() => {
         get_activity_root()?.removeChild(par.element)
     }, 1000)
@@ -73,6 +87,7 @@ export function buildFullscreenActivity(source: Activity): ActivityBuild {
     var title = document.createElement("h2")
     title.textContent = source.title || ""
     topbar.appendChild(title)
+    var unbind;
     if (source.oncancel) {
         var cancelb = document.createElement("input")
         cancelb.type = "button"
@@ -85,6 +100,7 @@ export function buildFullscreenActivity(source: Activity): ActivityBuild {
         }
         cancelb.value = "×"
         cancelb.classList.add("activity-fs-cancel")
+        unbind = Keybindings.bindElementClick(cancelb, "escape")
         topbar.appendChild(cancelb)
     }
 
@@ -94,7 +110,8 @@ export function buildFullscreenActivity(source: Activity): ActivityBuild {
 
     return {
         source: source,
-        element: screen
+        element: screen,
+        unbind,
     }
 }
 

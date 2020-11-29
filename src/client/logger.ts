@@ -9,6 +9,7 @@ export class Logger {
         form: "color: #FF8800",
         websocket: "color: #00EEEE",
         "dev-mode": "color: #FF00FF",
+        keybinding: "color: #f542aa"
     }
 
 

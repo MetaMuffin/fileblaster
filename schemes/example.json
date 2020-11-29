@@ -1,7 +1,9 @@
 {
     "customers": {
         "name": {
-            "type": "string"
+            "type": "string",
+            "preview_index": 0,
+            "query_default": true
         },
         "birthdate": {
             "type": "date"

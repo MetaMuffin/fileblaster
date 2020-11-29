@@ -2,7 +2,10 @@ import { ColEntry, Scheme, SchemeCollection } from "../scheme";
 import { Logger } from "./logger";
 import { displayValue } from "./type_display";
 
-
+export interface UpdatableElement {
+    element: HTMLElement,
+    update: () => any,
+}
 
 
 export function getAllCollectionNames(scheme: Scheme): string[] {
@@ -55,11 +58,9 @@ export function getEntryPreview(entry: ColEntry, col: SchemeCollection): string 
         .entries(col)
         .filter(([k, v]) => v.preview_index != undefined)
         .sort(([k1, v1], [k2, v2]) => (v1.preview_index || 0) - (v2.preview_index || 0))
-        .map(([k,v]) => entry[k])
-        .map(displayValue)
+        .map(([k,v]) => [col[k],entry[k]])
+        .map(([sv,e]) => displayValue(sv,e))
         .join(" ")
-    console.log(display.trim().length);
-    console.log(entry.f_id);
     
     if (display.trim().length < 1) {
         display = entry.f_id

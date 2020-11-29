@@ -5,6 +5,7 @@ import { State } from "..";
 import { getEntryPreview, kebabToTitle, newTempID, setDisabledRecursive, sleep } from "../helper";
 import { EventEmitter } from "events";
 import { genEntryId } from "../../schemeValidator";
+import { Keybindings } from "../keybindings";
 
 export type OnSaveCallback = () => Promise<boolean>
 
@@ -41,8 +42,7 @@ export function entryForm(colname: string, entry: ColEntry | undefined = undefin
         popSaveBar()
         return true
     }
-
-
+    
     const ondiscard = () => {
         popSaveBar()
     }
@@ -79,6 +79,7 @@ export function entryForm(colname: string, entry: ColEntry | undefined = undefin
 
 export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any): Activity {
     var bar = document.createElement("div")
+    var unbind: (() => any)[] = []
 
     var infoText = document.createElement("p")
     infoText.textContent = "You have unsaved changes."
@@ -110,10 +111,16 @@ export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any):
     btnSaveBack.classList.add("btn-green")
     btnSaveBack.value = "Save and Quit"
 
+    unbind.push(Keybindings.bindElementClick(btnSave,"save"))
+    unbind.push(Keybindings.bindElementClick(btnSaveBack,"save-quit"))
+
     bar.append(infoText, btnDiscard, btnSaveBack, btnSave)
     bar.classList.add("save-snackbar")
 
     return {
+        onpop: () => {
+            unbind.forEach(e => e())
+        },
         type: "snackbar",
         element: bar,
         name: "save-bar",
