@@ -1,3 +1,5 @@
+import { EventEmitter } from "events"
+import { setDisabledRecursive } from "./helper"
 import { Logger } from "./logger"
 
 
@@ -8,6 +10,8 @@ export interface Activity {
     type?: "floating" | "fullscreen" | "snackbar",
     oncancel?: () => boolean,
     snackbarTimeout?: number,
+    events?: EventEmitter,
+    snackbarTheme?: string,
 }
 
 export interface ActivityBuild {
@@ -37,6 +41,7 @@ export function popActivity() {
         Logger.log(["activity"], `Popped activity: ${s.source.name}`)
         s.element.classList.remove("activity-active")
         s.element.classList.add("activity-inactive")
+        setDisabledRecursive(s.element, true);
         setTimeout(() => {
             if (s) get_activity_root()?.removeChild(s.element)
         }, 1000)
@@ -78,12 +83,14 @@ export function buildFullscreenActivity(source: Activity): ActivityBuild {
             popActivity()
             cancelb.onclick = () => { }
         }
-        cancelb.value = "X"
+        cancelb.value = "×"
         cancelb.classList.add("activity-fs-cancel")
         topbar.appendChild(cancelb)
     }
 
-    screen.append(topbar, source.element)
+    screen.appendChild(topbar)
+    if (source.events) screen.appendChild(buildLoadingBar(source.events))
+    screen.appendChild(source.element)
 
     return {
         source: source,
@@ -91,9 +98,25 @@ export function buildFullscreenActivity(source: Activity): ActivityBuild {
     }
 }
 
+export function buildLoadingBar(events: EventEmitter): HTMLElement {
+    var el = document.createElement("div")
+    el.classList.add("loading-bar-inactive", "loading-bar")
+    events.on("loading-state", (state) => {
+        if (state) {
+            el.classList.add("loading-bar-active")
+            el.classList.remove("loading-bar-inactive")
+        } else {
+            el.classList.remove("loading-bar-active")
+            el.classList.add("loading-bar-inactive")
+        }
+    })
+    return el
+}
+
 export function buildSnackbarActivity(source: Activity): ActivityBuild {
     var snackbar = document.createElement("div")
     snackbar.classList.add("activity", "activity-active", "activity-snackbar")
+    if (source.snackbarTheme) snackbar.classList.add(`snackbar-${source.snackbarTheme}`)
     source.element.classList.add("activity-content")
 
 
@@ -109,7 +132,7 @@ export function buildSnackbarActivity(source: Activity): ActivityBuild {
 }
 
 
-export function pushErrorSnackbar(message: string) {
+export function pushErrorSnackbar(message: string, poptimer: boolean) {
     var errel = document.createElement("div")
     var errtext = document.createElement("p")
     errtext.innerHTML = message
@@ -119,6 +142,24 @@ export function pushErrorSnackbar(message: string) {
         element: errel,
         name: "error",
         title: "Error",
-        type: "snackbar"
+        type: "snackbar",
+        snackbarTheme: "danger",
+        snackbarTimeout: poptimer ? 3000 : undefined,
+    })
+}
+
+export function pushErrorObjectSnackbar(err: { title: string, data: any }, poptimer: boolean) {
+    var errel = document.createElement("div")
+    var errtext = document.createElement("p")
+    errtext.innerHTML = "HERE SHOULD BE A MESSAGE WHAT WENT WRONG. PLEASE REVISIT." // TODO TODO TODO
+    errel.appendChild(errtext)
+    errel.classList.add("error-snackbar-el")
+    pushActivity({
+        element: errel,
+        name: "error",
+        title: "Error",
+        type: "snackbar",
+        snackbarTheme: "danger",
+        snackbarTimeout: poptimer ? 3000 : undefined,
     })
 }

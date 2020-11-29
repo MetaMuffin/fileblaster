@@ -6,7 +6,7 @@ export class Logger {
         warn: "color: black; background-color: yellow",
         perf: "color: #FF0000",
         activity: "color: #00FF00",
-        editor: "color: #FF8800",
+        form: "color: #FF8800",
         websocket: "color: #00EEEE",
         "dev-mode": "color: #FF00FF",
     }

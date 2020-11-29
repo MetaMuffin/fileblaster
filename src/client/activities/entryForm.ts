@@ -1,47 +1,64 @@
-import { popPatialActivity, Activity, pushActivity, popActivity } from "../activity";
-import { SchemeValue, SchemeInputBuild, SchemeCollection, SchemeValueType } from "../../scheme";
+import { popPatialActivity, Activity, pushActivity, popActivity, pushErrorSnackbar } from "../activity";
+import { SchemeValue, SchemeInputBuild, SchemeCollection, SchemeValueType, ColEntry } from "../../scheme";
 import { Logger } from "../logger";
 import { State } from "..";
-import { kebabToTitle, newTempID, setDisabledRecursive, sleep } from "../helper";
+import { getEntryPreview, kebabToTitle, newTempID, setDisabledRecursive, sleep } from "../helper";
+import { EventEmitter } from "events";
+import { genEntryId } from "../../schemeValidator";
 
 export type OnSaveCallback = () => Promise<boolean>
 
-export function entryForm(colname: string, entryid: string | undefined = undefined): Activity {
+export function entryForm(colname: string, entry: ColEntry | undefined = undefined): Activity {
     var div = document.createElement("div");
+    var aevents = new EventEmitter()
 
     var col = State.scheme[colname]
     var savedState = true
     var saveSnackbar: Activity | undefined;
+    var collect: undefined | (() => ColEntry);
+
+    var data = entry || { f_id: genEntryId() }
 
     const popSaveBar = () => {
         savedState = true
-        if (saveSnackbar){
+        if (saveSnackbar) {
             popPatialActivity(saveSnackbar)
             saveSnackbar = undefined
         }
     }
 
     const onsave = async (): Promise<boolean> => {
-        await sleep(1000)
+        aevents.emit("loading-state", true)
+        if (!collect) {
+            pushErrorSnackbar("Internal error while collecting form data. Sorry :(", true)
+            return false;
+        }
+        var entry = collect()
+        entry.f_id = data.f_id
+        var couldSave = await State.ws.updateEntry(colname, entry)
+        aevents.emit("loading-state", false)
+        if (!couldSave) return false
         popSaveBar()
-
         return true
     }
-    
+
+
     const ondiscard = () => {
         popSaveBar()
     }
 
     var onchange = () => {
         if (!saveSnackbar) {
-            saveSnackbar = buildSaveSnackbar(onsave,ondiscard)
+            saveSnackbar = buildSaveSnackbar(onsave, ondiscard)
             pushActivity(saveSnackbar)
         }
         savedState = false
     }
 
-    var form = buildEntryInput(col,onchange)
+    var form = buildEntryInput(col, data, onchange)
     div.append(form.element)
+    collect = form.collect
+
 
     return {
         element: div,
@@ -55,7 +72,8 @@ export function entryForm(colname: string, entryid: string | undefined = undefin
             }, 300)
             return false
         },
-        title: `Edit: ${entryid || "New"}`,
+        title: `Edit: ${(entry) ? getEntryPreview(entry, col) : `New (${data.f_id})`}`,
+        events: aevents
     };
 }
 
@@ -68,13 +86,13 @@ export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any):
     var btnSave = document.createElement("input")
     btnSave.type = "button"
     btnSave.onclick = async () => {
-        setDisabledRecursive(bar,true)
+        setDisabledRecursive(bar, true)
         var couldSave = await onsave()
-        if (!couldSave) return setDisabledRecursive(bar,false)   
+        if (!couldSave) return setDisabledRecursive(bar, false)
     }
     btnSave.classList.add("btn-green")
     btnSave.value = "Save"
-    
+
     var btnDiscard = document.createElement("input")
     btnDiscard.type = "button"
     btnDiscard.onclick = ondiscard
@@ -84,15 +102,15 @@ export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any):
     var btnSaveBack = document.createElement("input")
     btnSaveBack.type = "button"
     btnSaveBack.onclick = async () => {
-        setDisabledRecursive(bar,true)
+        setDisabledRecursive(bar, true)
         var couldSave = await onsave()
-        if (!couldSave) return setDisabledRecursive(bar,false)
+        if (!couldSave) return setDisabledRecursive(bar, false)
         popActivity()
     }
     btnSaveBack.classList.add("btn-green")
     btnSaveBack.value = "Save and Quit"
 
-    bar.append(infoText,btnDiscard,btnSaveBack,btnSave)
+    bar.append(infoText, btnDiscard, btnSaveBack, btnSave)
     bar.classList.add("save-snackbar")
 
     return {
@@ -102,10 +120,11 @@ export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any):
     }
 }
 
-export function buildEntryInput(s: SchemeCollection, onchange: ()=>any): SchemeInputBuild {
+export function buildEntryInput(s: SchemeCollection, preload_data: ColEntry | undefined, onchange: () => any): SchemeInputBuild {
     var form = document.createElement("div");
     form.classList.add("entry-form")
     var collectors: { [key: string]: () => any } = {};
+    if (!preload_data) preload_data = { f_id: "PRELOAD_PLACEHOLDER" }
 
     for (const valname in s) {
         if (s.hasOwnProperty(valname)) {
@@ -113,7 +132,8 @@ export function buildEntryInput(s: SchemeCollection, onchange: ()=>any): SchemeI
             var pair = document.createElement("div")
 
             var label = document.createElement("span")
-            var { collect, element, label_after } = buildValueInput(valtype,onchange)
+            var preload = preload_data[valname]
+            var { collect, element, label_after } = buildValueInput(valtype, preload, onchange)
             collectors[valname] = collect
 
             label.textContent = kebabToTitle(valname)
@@ -126,14 +146,22 @@ export function buildEntryInput(s: SchemeCollection, onchange: ()=>any): SchemeI
     }
 
     return {
-        collect: () => { },
+        collect: () => {
+            var res: {[key: string]: any} = {}
+            for (const valname in collectors) {
+                if (!s.hasOwnProperty(valname)) continue
+                const collect = collectors[valname]
+                res[valname] = collect()
+            }
+            return res
+        },
         element: form,
     };
 }
 
-export function buildValueInput(s: SchemeValue, onchange: ()=>any): SchemeInputBuild {
+export function buildValueInput(s: SchemeValue, preload: any, onchange: () => any): SchemeInputBuild {
     var builder = FORM_INPUT_BUILDERS[s.type]
-    return builder(s,onchange)
+    return builder(s, preload, onchange)
 }
 
 
@@ -145,18 +173,18 @@ function dummyInput(s: SchemeValue): SchemeInputBuild {
     }
 }
 
-export type FormInputBuilder = (s: SchemeValue, onchange: ()=>any) => SchemeInputBuild
+export type FormInputBuilder = (s: SchemeValue, preload: any, onchange: () => any) => SchemeInputBuild
 const FORM_INPUT_BUILDERS: { [key in SchemeValueType]: FormInputBuilder } = {
-    array: (s,och) => {
+    array: (s, preload, och) => {
         return dummyInput(s)
     },
-    ref: (s,och) => {
+    ref: (s, preload, och) => {
         return dummyInput(s)
     },
-    map: (s,och) => {
+    map: (s, preload, och) => {
         return dummyInput(s)
     },
-    date: (s,och) => {
+    date: (s, preload, och) => {
         var date = new Date();
         var dd = String(date.getDate()).padStart(2, "0");
         var mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -181,9 +209,9 @@ const FORM_INPUT_BUILDERS: { [key in SchemeValueType]: FormInputBuilder } = {
         };
     },
 
-    number: (s,och) => {
+    number: (s, preload, och) => {
         var input = document.createElement("input");
-        input.value = "1";
+        input.value = preload || "1";
         input.type = "number";
         input.placeholder = " "
         input.onchange = och;
@@ -199,11 +227,12 @@ const FORM_INPUT_BUILDERS: { [key in SchemeValueType]: FormInputBuilder } = {
         };
     },
 
-    string: (s,och) => {
+    string: (s, preload, och) => {
         var input = document.createElement("input");
         input.onchange = och;
         input.placeholder = " "
         input.type = "text";
+        input.value = preload || ""
         return {
             collect: () => input.value,
             element: input,

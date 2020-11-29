@@ -9,6 +9,7 @@ import { devInit } from "./dev";
 
 
 async function init() {
+    document.body.classList.add("theme-light")
     State.ws = await createWS()
     devInit()
     pushActivity(collectionSelectorActivity((sel) => {
@@ -23,7 +24,4 @@ export class State {
 }
 
 window.onload = init
-
-//@ts-ignore
-window.b = getAllCollectionNames
 

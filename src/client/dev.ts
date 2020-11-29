@@ -8,6 +8,12 @@ export function devInit() {
     State.ws.on("packet-dev", (data) => {
         if (data.data.css_reload) devReloadCss()
     })
+
+    // Expose some functions to the window for dev
+    //@ts-ignore
+    window.dev = {
+        Logger, State,
+    }
 }
 
 

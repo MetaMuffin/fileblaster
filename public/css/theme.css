@@ -1,0 +1,37 @@
+.theme-light {
+    --background-1: white;
+    --background-2: lightgrey;
+    --text: black;
+
+    --afs-accent-1: #2c4ea3;
+    --afs-accent-2: #5a2ca3;
+    --afs-accent-3: #9d2ca3;
+    --afs-accent-4: #a32c64;
+    --afs-accent-5: #a32c2c;
+
+    --button-danger: red;
+    --button-danger-hover: rgb(190, 0, 0);
+    --button-green: #41c052;
+    --button-green-hover: rgb(51, 151, 64);
+    --button-text-color: white;
+
+    --input-accent-default: #a3a3a3;
+    --input-accent-selected: slateblue;
+    --input-placeholder: #777;
+    
+    --snackbar-danger-background-color: rgb(146, 28, 28);
+    --snackbar-danger-text-color: white;
+    --snackbar-normal-background-color: rgb(20, 74, 99);
+    --snackbar-normal-text-color: white;
+
+    
+}
+
+.theme-dark {
+}
+
+.theme-dark-purple {
+}
+
+.theme-high-contrast {
+}

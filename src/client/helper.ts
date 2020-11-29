@@ -1,4 +1,6 @@
-import { Scheme } from "../scheme";
+import { ColEntry, Scheme, SchemeCollection } from "../scheme";
+import { Logger } from "./logger";
+import { displayValue } from "./type_display";
 
 
 
@@ -28,14 +30,14 @@ export function kebabToTitle(name: string): string {
 }
 
 
-export function sleep(ms:number): Promise<void> {
-    return new Promise((r) => setTimeout(r,ms))
+export function sleep(ms: number): Promise<void> {
+    return new Promise((r) => setTimeout(r, ms))
 }
 
 export function setDisabledRecursive(element: Element, state: boolean) {
     if (state) {
-        element.setAttribute("js-disabled","1")
-        element.setAttribute("disabled","1")
+        element.setAttribute("js-disabled", "1")
+        element.setAttribute("disabled", "1")
     } else {
         if (element.getAttribute("js-disabled")) {
             element.removeAttribute("js-disabled")
@@ -44,6 +46,23 @@ export function setDisabledRecursive(element: Element, state: boolean) {
     }
     for (let i = 0; i < element.children.length; i++) {
         const child = element.children[i];
-        setDisabledRecursive(child,state)   
+        setDisabledRecursive(child, state)
     }
+}
+
+export function getEntryPreview(entry: ColEntry, col: SchemeCollection): string {
+    var display = Object
+        .entries(col)
+        .filter(([k, v]) => v.preview_index != undefined)
+        .sort(([k1, v1], [k2, v2]) => (v1.preview_index || 0) - (v2.preview_index || 0))
+        .map(([k,v]) => entry[k])
+        .map(displayValue)
+        .join(" ")
+    console.log(display.trim().length);
+    console.log(entry.f_id);
+    
+    if (display.trim().length < 1) {
+        display = entry.f_id
+    }
+    return display
 }
