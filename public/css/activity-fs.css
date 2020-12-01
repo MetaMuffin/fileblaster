@@ -65,7 +65,8 @@
     background-color: var(--afs-accent-5);
 }
 
-.activity-fs-cancel {
+.activity-fs-cancel[type=button] {
+    padding: 0em;
     width: 1em;
     height: 1em;
     border: none;
@@ -74,9 +75,15 @@
     position: absolute;
     right: 1em;
     top: 0.5em;
+    background-color: transparent;
+    transition: color 0.3s;
 
     font-size: 2em;
     font-family: Arial, Helvetica, sans-serif;
+}
+.activity-fs-cancel[type=button]:hover {
+    color: red;
+    background-color: transparent;
 }
 
 .activity-fs-topbar {
@@ -90,6 +97,7 @@
 .activity-fs-topbar h2 {
     padding-top: 0.5em;
     margin-left: 1em;
+    margin-bottom: 0px;
     color: white;
 }
 

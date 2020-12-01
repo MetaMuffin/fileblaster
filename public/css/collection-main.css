@@ -1,0 +1,23 @@
+
+
+.interactive-list-view {
+}
+
+.interactive-list-view .controls {
+    
+}
+
+
+.entry-list-view {
+    padding: 1em;
+    border-bottom: 1px solid grey;
+    
+}
+
+
+.entry-list-view-btns {
+    float: right;
+    position: relative;
+    transform: translateY(-2em);
+}
+

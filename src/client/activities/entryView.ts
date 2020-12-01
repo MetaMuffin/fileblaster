@@ -67,6 +67,7 @@ export function buildEntryListViewItem(colname: string, entry: ColEntry, feature
 
     if (features.allowEdit) {
         var btnEdit = document.createElement("input")
+        btnEdit.classList.add("btn")
         btnEdit.type = "button"
         btnEdit.value = "Edit"
         btnEdit.onclick = () => {

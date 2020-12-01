@@ -85,22 +85,23 @@ export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any):
     infoText.textContent = "You have unsaved changes."
 
     var btnSave = document.createElement("input")
+    btnSave.classList.add("btn", "btn-green")
     btnSave.type = "button"
     btnSave.onclick = async () => {
         setDisabledRecursive(bar, true)
         var couldSave = await onsave()
         if (!couldSave) return setDisabledRecursive(bar, false)
     }
-    btnSave.classList.add("btn-green")
     btnSave.value = "Save"
 
     var btnDiscard = document.createElement("input")
+    btnDiscard.classList.add("btn", "btn-danger")
     btnDiscard.type = "button"
     btnDiscard.onclick = ondiscard
-    btnDiscard.classList.add("btn-danger")
     btnDiscard.value = "Discard changes"
 
     var btnSaveBack = document.createElement("input")
+    btnSaveBack.classList.add("btn", "btn-green")
     btnSaveBack.type = "button"
     btnSaveBack.onclick = async () => {
         setDisabledRecursive(bar, true)
@@ -108,7 +109,6 @@ export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any):
         if (!couldSave) return setDisabledRecursive(bar, false)
         popActivity()
     }
-    btnSaveBack.classList.add("btn-green")
     btnSaveBack.value = "Save and Quit"
 
     unbind.push(Keybindings.bindElementClick(btnSave,"save"))

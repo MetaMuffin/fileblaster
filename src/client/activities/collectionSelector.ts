@@ -4,9 +4,6 @@ import { State } from ".."
 import { popPatialActivity, popActivity, Activity } from "../activity"
 import { Keybindings } from "../keybindings"
 
-
-
-
 export function buildCollectionSelectorActivity(onselect: (selection: string) => boolean): Activity {
     var div = document.createElement("div")
     var ul = document.createElement("ul")
@@ -36,7 +33,6 @@ export function buildCollectionSelectorActivity(onselect: (selection: string) =>
         if (!ocb[s]) return
         ocb[s]()
     })
-
 
     div.appendChild(ul)
     return {

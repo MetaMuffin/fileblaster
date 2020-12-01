@@ -12,6 +12,7 @@ export function collectionMainActivity(colname: string): Activity {
     
     var toolbar = document.createElement("div")
     var btnNew = document.createElement("input")
+    btnNew.classList.add("btn","btn-big")
     btnNew.type = "button"
     btnNew.value = "New Entry"
     btnNew.onclick = async () => {

@@ -13,6 +13,8 @@
     --button-danger-hover: rgb(190, 0, 0);
     --button-green: #41c052;
     --button-green-hover: rgb(51, 151, 64);
+    --button-accent: #41c0a0;
+    --button-accent-hover: #359980;
     --button-text-color: white;
 
     --input-accent-default: #a3a3a3;

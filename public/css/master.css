@@ -5,6 +5,7 @@
 
 * {
   user-select: none;
+  font-family: 'Roboto';
 }
 input[type=text],input[type=number] {
   user-select: auto;
@@ -13,7 +14,6 @@ input[type=text],input[type=number] {
 div, body, html {
   margin: 0px;
   padding: 0px;
-  font-family: 'Roboto';
 }
 
 body {
