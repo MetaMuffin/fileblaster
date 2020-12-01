@@ -2,10 +2,12 @@ import { ColEntry, Scheme, SchemeCollection } from "../scheme";
 import { Logger } from "./logger";
 import { displayValue } from "./type_display";
 
-export interface UpdatableElement {
+export interface AdvancedElement {
     element: HTMLElement,
-    update: () => any,
+    update?: () => any,
+    cleanup?: () => any,
 }
+
 
 
 export function getAllCollectionNames(scheme: Scheme): string[] {

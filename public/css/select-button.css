@@ -1,0 +1,9 @@
+.select-button-sheet ul {
+    float: left;
+    padding-left: 1em;
+    padding-bottom: 1.5em;
+}
+
+.select-button-sheet ul li {
+    float: left;
+}

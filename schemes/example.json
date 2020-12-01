@@ -27,6 +27,9 @@
                 "included": ["Apple", "Banana", "a"]
             }
         },
+        "kek": {
+            "type": "boolean"
+        },
         "interests": {
             "type": "array",
             "array": {
@@ -48,7 +51,7 @@
     },
     "orders": {
         "customer": {
-            "type":"ref",
+            "type": "ref",
             "ref": {
                 "two-way": true,
                 "collection": "customers"

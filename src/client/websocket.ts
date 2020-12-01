@@ -55,6 +55,7 @@ export class WS extends EventEmitter {
     private onmessage(data: string) {
         var j: WSPacket = JSON.parse(data)
         this.emit("packet-" + j.id, j)
+        this.emit("event-" + j.name, j.data)
     }
 
     private async recvPacket(id: number): Promise<WSPacket> {
@@ -77,7 +78,7 @@ export class WS extends EventEmitter {
         var id = this.sendPacket(name, data)
         var res = await this.recvPacket(id)
         if (res.name == "error") {
-            Logger.log(["err", "websocket"], `SERVER RESPONDED WITH ERROR:`,res.data)
+            Logger.log(["err", "websocket"], `SERVER RESPONDED WITH ERROR:`, res.data)
             pushErrorObjectSnackbar(res.data, true)
             return undefined
         }
@@ -101,5 +102,9 @@ export class WS extends EventEmitter {
     }
     async getManyEntries(colname: string, query: any, limit?: number, offset?: number): Promise<ColEntry[]> {
         return await this.packetIO("get-many-entries", { colname, query, limit, offset })
+    }
+
+    async entryLock(entry_id: string, state: boolean): Promise<boolean> {
+        return await this.packetIO("lock", { entry_id, state })
     }
 }

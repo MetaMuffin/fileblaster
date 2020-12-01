@@ -8,7 +8,7 @@ export interface SchemeCollection {
     [key: string]: SchemeValue
 }
 
-export type SchemeValueType = "string" | "number" | "array" | "map" | "ref" | "date"
+export type SchemeValueType = "string" | "number" | "array" | "map" | "ref" | "date" | "boolean"
 
 export interface SchemeValue {
     type: SchemeValueType

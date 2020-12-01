@@ -11,6 +11,7 @@
 }
 
 .entry-form div input {
+    font-family: "Roboto";
     margin-left: 0.75em;
     border: none;
     border-bottom: 0.125rem solid var(--input-accent-default);
@@ -30,6 +31,11 @@
     border-color: var(--underline-color);
 }
 
+.entry-form div input:invalid {
+    box-shadow: none;
+    border-color: var(--input-invalid);
+}
+
 .entry-form div span {
     font-size: large;
     position: absolute;
@@ -47,4 +53,15 @@
     top: 0px;
     font-size: medium;
     color: var(--underline-color)
+}
+
+.entry-form div input[type="checkbox"] {
+    margin-top: 0.5em;
+    width: 1em;
+    height: 1em;
+    cursor: pointer;
+}
+
+.entry-form div input[type="date"] {
+    padding-bottom: 1.5em;
 }

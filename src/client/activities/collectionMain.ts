@@ -8,7 +8,7 @@ import { buildInteractiveEntryListView } from "./entryView";
 export function collectionMainActivity(colname: string): Activity {
     var div = document.createElement("div")
     var list = buildInteractiveEntryListView(colname);
-    var unbind: (() => any)[] = []
+    var cleanup: (() => any)[] = []
     
     var toolbar = document.createElement("div")
     var btnNew = document.createElement("input")
@@ -18,10 +18,10 @@ export function collectionMainActivity(colname: string): Activity {
     btnNew.onclick = async () => {
         pushActivity(entryForm(colname,undefined),() => {
             console.log("POP!");
-            list.update()
+            if (list.cleanup) cleanup.push(list.cleanup)
         })
     }
-    unbind.push(Keybindings.bindElementClick(btnNew,"new"))
+    cleanup.push(Keybindings.bindElementClick(btnNew,"new"))
     toolbar.appendChild(btnNew)
 
     div.append(toolbar,list.element)
@@ -33,7 +33,8 @@ export function collectionMainActivity(colname: string): Activity {
         oncancel: () => true,
         type: "fullscreen",
         onpop: () => {
-            unbind.forEach(e => e())
+            cleanup.forEach(e => e())
+
         }
     }
 }

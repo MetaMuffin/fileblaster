@@ -32,12 +32,15 @@ export class ServerDB {
         return results;
     }
     
-    static async updateEntry(colname: string, entry: ColEntry) {
+    static async updateEntry(colname: string, entry: ColEntry): Promise<boolean> {
         let query = {f_id: entry.f_id}
-        await this.dbo.collection(colname).replaceOne(query,entry, {upsert: true})
+        var res = await this.dbo.collection(colname).replaceOne(query,entry, {upsert: true})
+        return res.matchedCount > 0 || res.upsertedCount != 0
     }
 
-    static async deleteEntry(colname: string, entry: ColEntry) {
-        await this.dbo.collection(colname).deleteOne({f_id: entry.f_id})
+    static async deleteEntry(colname: string, entry: ColEntry): Promise<boolean> {
+        var res = await this.dbo.collection(colname).deleteOne({f_id: entry.f_id})
+        if (!res.deletedCount) return false
+        return res.deletedCount > 0
     }
 }

@@ -1,0 +1,52 @@
+.activity-sheet {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.activity-sheet.activity-active {
+    animation-name: sheet-in;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+.activity-sheet.activity-inactive {
+    animation-name: sheet-out;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+.activity-sheet .activity-content {
+    padding: 1em;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    max-height: 80%;
+    background-color: white;
+}
+
+@keyframes sheet-in {
+    0% {
+        bottom: -100%;
+        opacity: 0;
+    }
+    100% {
+        bottom: 0px;
+        opacity: 1;
+    }
+}
+
+@keyframes sheet-out {
+    0% {
+        bottom: 0px;
+        opacity: 1;
+    }
+    100% {
+        bottom: -100%;
+        opacity: 0;
+    }
+}

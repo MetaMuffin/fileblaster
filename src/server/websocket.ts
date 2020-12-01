@@ -1,5 +1,6 @@
 
 import { Server } from "http"
+import { v4 } from "uuid"
 import * as lws from "ws"
 import { validateEntry } from "../schemeValidator"
 import { WSPacket } from "../wspacket"
@@ -15,21 +16,45 @@ interface FnRes {
     }
 }
 
+var ws_all: { id: string, ws: lws }[] = []
+
+export function wsBroadcast(name: string, data: any) {
+    ws_all.forEach(w => {
+        var res = { name, data }
+        console.log(res);
+        w.ws.send(JSON.stringify(res))
+    })
+}
+
 export function wsServerConnect(ws: lws) {
+    var id = v4()
     const devpackethandler = (data: any) => {
         ws.send(JSON.stringify({
             data, id: "dev",
             name: "dev-packet"
         }))
     }
+    var ready = false
     dev_events.on("packet", devpackethandler)
     ws.onclose = () => {
         dev_events.off("packet", devpackethandler)
+        ws_all.splice(ws_all.findIndex(e => e.id == id), 1)
+        for (const lock in locks) {
+            if (locks.hasOwnProperty(lock)) {
+                const lock_owner_id = locks[lock];
+                if (lock_owner_id == id) delete locks[lock]
+            }
+        }
     }
-    ws.onopen = () => {
+    const onafteropen = () => {
         console.log("Somebody connected!!!")
+        ws_all.push({ id, ws })
     }
     ws.onmessage = async (ev) => {
+        if (!ready) {
+            onafteropen()
+            ready = true
+        }
         var j: WSPacket = JSON.parse(ev.data.toString())
         console.log(j);
         var res: WSPacket = {
@@ -39,7 +64,7 @@ export function wsServerConnect(ws: lws) {
         }
 
         if (wsPacketHandlers.hasOwnProperty(j.name)) {
-            var fnres: FnRes = await wsPacketHandlers[j.name](j.data)
+            var fnres: FnRes = await wsPacketHandlers[j.name](j.data, ws, id)
             if (fnres.error) {
                 res.name = "error"
                 res.data = fnres.error
@@ -63,24 +88,31 @@ function validateEntryLocal(colname: any, entry: any): FnRes | undefined {
     return undefined
 }
 
-const wsPacketHandlers: { [key: string]: (data: any) => Promise<FnRes> } = {
+// maps a entry id to a id of the websocket, that locked it.
+var locks: { [key: string]: string } = {}
+
+const wsPacketHandlers: { [key: string]: (data: any, ws: lws, wsid: string) => Promise<FnRes> } = {
     "scheme": async (d) => {
         return { ok: ServerDB.scheme }
     },
-    
+
     "update-entry": async (d) => {
         const { colname, entry } = d;
         var err_res = validateEntryLocal(colname, entry)
         if (err_res) return err_res
-        ServerDB.updateEntry(colname, entry);
-        return { ok: "ok" }
+        var res = await ServerDB.updateEntry(colname, entry);
+        wsBroadcast("entry-reload", {})
+        if (res) return { ok: "ok" }
+        return { error: { title: "no matches" } }
     },
     "delete-entry": async (d) => {
         const { colname, entry } = d;
         var err_res = validateEntryLocal(colname, entry)
         if (err_res) return err_res
-
-        return { ok: "ok" }
+        var res = await ServerDB.deleteEntry(colname, entry)
+        wsBroadcast("entry-reload", {})
+        if (res) return { ok: "ok" }
+        return { error: { title: "no matches" } }
     },
     "get-one-entry": async (d) => {
         const { colname, query } = d;
@@ -96,4 +128,14 @@ const wsPacketHandlers: { [key: string]: (data: any) => Promise<FnRes> } = {
         var res = await ServerDB.getManyEntries(colname, query, count, offset);
         return { ok: res }
     },
+    "lock": async (d, _, id) => {
+        const { state, entry_id } = d;
+        if (!entry_id) return { error: {title: "entry_id missing! kek"}}
+        if (locks[entry_id] == id && state) {
+            delete locks[entry_id]
+        }
+        if (locks[entry_id]) return { ok: false }
+        if (state) locks[entry_id] = id
+        return { ok: true }
+    }
 }

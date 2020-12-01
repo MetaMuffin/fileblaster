@@ -11,6 +11,8 @@ export type OnSaveCallback = () => Promise<boolean>
 
 export function entryForm(colname: string, entry: ColEntry | undefined = undefined): Activity {
     var div = document.createElement("div");
+
+
     var aevents = new EventEmitter()
 
     var col = State.scheme[colname]
@@ -42,7 +44,7 @@ export function entryForm(colname: string, entry: ColEntry | undefined = undefin
         popSaveBar()
         return true
     }
-    
+
     const ondiscard = () => {
         popSaveBar()
     }
@@ -55,9 +57,19 @@ export function entryForm(colname: string, entry: ColEntry | undefined = undefin
         savedState = false
     }
 
-    var form = buildEntryInput(col, data, onchange)
-    div.append(form.element)
-    collect = form.collect
+    const build_main = () => {
+        var form = buildEntryInput(col, data, onchange)
+        div.append(form.element)
+        collect = form.collect
+
+    }
+
+    if (entry) State.ws.entryLock(entry?.f_id, true).then((r) => {
+        if (r) return build_main()
+        popActivity()
+        pushErrorSnackbar("This entry is locked. Somepne is already editing it.",true)
+    })
+    else build_main()
 
 
     return {
@@ -71,6 +83,9 @@ export function entryForm(colname: string, entry: ColEntry | undefined = undefin
                 document.body.classList.remove("shake")
             }, 300)
             return false
+        },
+        onpop: () => {
+            if (entry) State.ws.entryLock(entry.f_id, false)
         },
         title: `Edit: ${(entry) ? getEntryPreview(entry, col) : `New (${data.f_id})`}`,
         events: aevents
@@ -109,10 +124,10 @@ export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any):
         if (!couldSave) return setDisabledRecursive(bar, false)
         popActivity()
     }
-    btnSaveBack.value = "Save and Quit"
+    btnSaveBack.value = "Save and Close"
 
-    unbind.push(Keybindings.bindElementClick(btnSave,"save"))
-    unbind.push(Keybindings.bindElementClick(btnSaveBack,"save-quit"))
+    unbind.push(Keybindings.bindElementClick(btnSave, "save"))
+    unbind.push(Keybindings.bindElementClick(btnSaveBack, "save-quit"))
 
     bar.append(infoText, btnDiscard, btnSaveBack, btnSave)
     bar.classList.add("save-snackbar")
@@ -154,7 +169,7 @@ export function buildEntryInput(s: SchemeCollection, preload_data: ColEntry | un
 
     return {
         collect: () => {
-            var res: {[key: string]: any} = {}
+            var res: { [key: string]: any } = {}
             for (const valname in collectors) {
                 if (!s.hasOwnProperty(valname)) continue
                 const collect = collectors[valname]
@@ -198,19 +213,18 @@ const FORM_INPUT_BUILDERS: { [key in SchemeValueType]: FormInputBuilder } = {
         var yy = date.getFullYear();
 
         var input = document.createElement("input");
-        input.classList.add("datepicker");
         input.onchange = och;
-        input.value = mm + "/" + dd + "/" + yy;
+
+        var d = new Date(preload)
+        input.value = preload || yy + "-" + mm + "-" + dd
+
         input.type = "date";
         input.placeholder = " "
 
         return {
-            collect: () =>
-                new Date(
-                    parseInt(input.value.split("/")[2]),
-                    parseInt(input.value.split("/")[0]),
-                    parseInt(input.value.split("/")[1])
-                ).getTime(),
+            collect: () => {
+                return input.value
+            },
             label_after: true,
             element: input,
         };
@@ -239,9 +253,23 @@ const FORM_INPUT_BUILDERS: { [key in SchemeValueType]: FormInputBuilder } = {
         input.onchange = och;
         input.placeholder = " "
         input.type = "text";
+        if(s.contraints?.regex != undefined) {
+            input.pattern = s.contraints?.regex || "";
+        }
         input.value = preload || ""
         return {
             collect: () => input.value,
+            element: input,
+            label_after: true
+        };
+    },
+    boolean: (s, preload, och) => {
+        var input = document.createElement("input");
+        input.onchange = och;
+        input.checked = preload
+        input.type = "checkbox";
+        return {
+            collect: () => input.checked,
             element: input,
             label_after: true
         };

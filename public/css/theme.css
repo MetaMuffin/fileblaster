@@ -20,13 +20,12 @@
     --input-accent-default: #a3a3a3;
     --input-accent-selected: slateblue;
     --input-placeholder: #777;
+    --input-invalid: red;
     
     --snackbar-danger-background-color: rgb(146, 28, 28);
     --snackbar-danger-text-color: white;
     --snackbar-normal-background-color: rgb(20, 74, 99);
     --snackbar-normal-text-color: white;
-
-    
 }
 
 .theme-dark {

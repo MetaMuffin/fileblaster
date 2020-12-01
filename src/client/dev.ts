@@ -1,4 +1,5 @@
 import { State } from ".";
+import { pushActivity, pushErrorObjectSnackbar } from "./activity";
 import { Logger } from "./logger";
 
 
@@ -12,7 +13,7 @@ export function devInit() {
     // Expose some functions to the window for dev
     //@ts-ignore
     window.dev = {
-        Logger, State,
+        Logger, State, pushActivity, pushErrorObjectSnackbar,
     }
 }
 

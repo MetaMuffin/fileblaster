@@ -8,7 +8,7 @@ export interface Activity {
     element: HTMLElement
     name: string,
     title?: string,
-    type?: "floating" | "fullscreen" | "snackbar",
+    type?: "floating" | "fullscreen" | "snackbar" | "sheet",
     oncancel?: () => boolean,
     onpop?: () => any,
     snackbarTimeout?: number,
@@ -30,10 +30,11 @@ const get_activity_root = () => document.getElementById("activity-root")
 
 var activityEvents = new EventEmitter()
 
-export function pushActivity(activity: Activity, onpop: () => any = () => {}) {
+export function pushActivity(activity: Activity, onpop: () => any = () => { }) {
     Logger.log(["activity"], `Pushed ${activity.type || "fullscreen (defaulted)"} activity: ${activity.name}`)
     var build;
     if (activity.type == "snackbar") build = buildSnackbarActivity(activity)
+    else if (activity.type == "sheet") build = buildSheetActivity(activity)
     else build = buildFullscreenActivity(activity)
 
     if (activity.type == "snackbar" || activity.type == "floating") activity_partial_stack.push(build)
@@ -148,6 +149,16 @@ export function buildSnackbarActivity(source: Activity): ActivityBuild {
     }
 }
 
+export function buildSheetActivity(source: Activity): ActivityBuild {
+    var el = document.createElement("div")
+    el.classList.add("activity","activity-sheet","activity-active")
+    source.element.classList.add("activity-content")
+    el.appendChild(source.element)
+    return {
+        source,
+        element: el
+    }
+}
 
 export function pushErrorSnackbar(message: string, poptimer: boolean) {
     var errel = document.createElement("div")
@@ -168,7 +179,7 @@ export function pushErrorSnackbar(message: string, poptimer: boolean) {
 export function pushErrorObjectSnackbar(err: { title: string, data: any }, poptimer: boolean) {
     var errel = document.createElement("div")
     var errtext = document.createElement("p")
-    errtext.innerHTML = "HERE SHOULD BE A MESSAGE WHAT WENT WRONG. PLEASE REVISIT." // TODO TODO TODO
+    errtext.innerHTML = `<strong>${err.title}</strong><br>${err.data}`
     errel.appendChild(errtext)
     errel.classList.add("error-snackbar-el")
     pushActivity({
@@ -179,4 +190,36 @@ export function pushErrorObjectSnackbar(err: { title: string, data: any }, popti
         snackbarTheme: "danger",
         snackbarTimeout: poptimer ? 3000 : undefined,
     })
+}
+
+export type SelectButton = { value: string, classes?: Array<string>, keybind?: string, onclick: () => any }
+export function selectButtonActivity(text: string, buttons: SelectButton[]): Activity {
+    var el = document.createElement("div")
+    el.classList.add("select-button-sheet")
+
+    var p = document.createElement("p")
+    p.textContent = text;
+
+    var ul = document.createElement("ul")
+    for (const btn of buttons) {
+        var li = document.createElement("li")
+        var b = document.createElement("input")
+        b.type = "button"
+        b.classList.add("btn")
+        if (btn.classes) b.classList.add(...btn.classes)
+        b.value = btn.value
+        b.onclick = btn.onclick
+
+        li.appendChild(b)
+        ul.appendChild(li)
+    }
+
+    el.append(p,ul)
+
+    return {
+        element: el,
+        name: "select-button",
+        type: "sheet",
+        oncancel: () => true,
+    }
 }
