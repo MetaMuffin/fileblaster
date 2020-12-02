@@ -78,7 +78,7 @@ export function buildEntryListViewItem(colname: string, entry: ColEntry, feature
         var btnEdit = document.createElement("input")
         btnEdit.classList.add("btn")
         btnEdit.type = "button"
-        btnEdit.value = "Edit"
+        btnEdit.value = State.lang.edit
         btnEdit.onclick = () => {
             pushActivity(entryForm(colname, entry), onupdate)
         }
@@ -88,24 +88,25 @@ export function buildEntryListViewItem(colname: string, entry: ColEntry, feature
         var btnDelete = document.createElement("input")
         btnDelete.classList.add("btn", "btn-danger")
         btnDelete.type = "button"
-        btnDelete.value = "Delete"
+        btnDelete.value = State.lang.delete
         btnDelete.onclick = () => {
-            pushActivity(selectButtonActivity("Do you really want to delete this entry?", [
+            pushActivity(selectButtonActivity(State.lang.deleteconfirm_text, [
                 {
-                    value: "Yes",
+                    value: State.lang.yes,
                     classes: ["btn-danger"],
                     onclick: () => {
-                        if(State.ws.entryLock(entry?.f_id, true)) {
-                            State.ws.entryLock(entry?.f_id, false);
-                            State.ws.deleteEntry(colname, entry);
-                        } else {
-                            pushErrorSnackbar("This entry is locked. Someone is still editing it.",true)
-                        }
+                        State.ws.entryLock(entry?.f_id, true).then((res) => {
+                            if(res) {
+                                State.ws.deleteEntry(colname, entry);
+                            } else {
+                                pushErrorSnackbar(State.lang.entry_locked, true)
+                            }
+                        })
                         popActivity()
                     }
                 },
                 {
-                    value: "No",
+                    value: State.lang.no,
                     onclick: () => {
                         popActivity();
                     }

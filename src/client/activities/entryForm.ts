@@ -33,7 +33,7 @@ export function entryForm(colname: string, entry: ColEntry | undefined = undefin
     const onsave = async (): Promise<boolean> => {
         aevents.emit("loading-state", true)
         if (!collect) {
-            pushErrorSnackbar("Internal error while collecting form data. Sorry :(", true)
+            pushErrorSnackbar(State.lang.internal_error, true)
             return false;
         }
         var entry = collect()
@@ -67,7 +67,7 @@ export function entryForm(colname: string, entry: ColEntry | undefined = undefin
     if (entry) State.ws.entryLock(entry?.f_id, true).then((r) => {
         if (r) return build_main()
         popActivity()
-        pushErrorSnackbar("This entry is locked. Somepne is already editing it.",true)
+        pushErrorSnackbar(State.lang.entry_locked, true);
     })
     else build_main()
 
@@ -87,7 +87,7 @@ export function entryForm(colname: string, entry: ColEntry | undefined = undefin
         onpop: () => {
             if (entry) State.ws.entryLock(entry.f_id, false)
         },
-        title: `Edit: ${(entry) ? getEntryPreview(entry, col) : `New (${data.f_id})`}`,
+        title: `${State.lang.edit}: ${(entry) ? getEntryPreview(entry, col) : `${State.lang.new_entry} (${data.f_id})`}`,
         events: aevents
     };
 }
@@ -97,7 +97,7 @@ export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any):
     var unbind: (() => any)[] = []
 
     var infoText = document.createElement("p")
-    infoText.textContent = "You have unsaved changes."
+    infoText.textContent = State.lang.unsaved_changes
 
     var btnSave = document.createElement("input")
     btnSave.classList.add("btn", "btn-green")
@@ -107,13 +107,13 @@ export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any):
         var couldSave = await onsave()
         if (!couldSave) return setDisabledRecursive(bar, false)
     }
-    btnSave.value = "Save"
+    btnSave.value = State.lang.save
 
     var btnDiscard = document.createElement("input")
     btnDiscard.classList.add("btn", "btn-danger")
     btnDiscard.type = "button"
     btnDiscard.onclick = ondiscard
-    btnDiscard.value = "Discard changes"
+    btnDiscard.value = State.lang.discard_changes
 
     var btnSaveBack = document.createElement("input")
     btnSaveBack.classList.add("btn", "btn-green")
@@ -124,7 +124,7 @@ export function buildSaveSnackbar(onsave: OnSaveCallback, ondiscard: () => any):
         if (!couldSave) return setDisabledRecursive(bar, false)
         popActivity()
     }
-    btnSaveBack.value = "Save and Close"
+    btnSaveBack.value = State.lang.save_close
 
     unbind.push(Keybindings.bindElementClick(btnSave, "save"))
     unbind.push(Keybindings.bindElementClick(btnSaveBack, "save-quit"))

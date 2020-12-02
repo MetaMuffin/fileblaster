@@ -24,6 +24,8 @@ var appws = expressWs(app).app;
 app.use("/static/script", estatic(join(__dirname, "../../public/dist")))
 app.use("/static/style", estatic(join(__dirname, "../../public/css")))
 app.use("/static/assets", estatic(join(__dirname, "../../public/assets")))
+app.use("/static/lang", estatic(join(__dirname, "../../languages")))
+
 
 app.get("/", function (req, res, next) {
   res.sendFile(join(__dirname, "../../public/index.html"))

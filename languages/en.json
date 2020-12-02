@@ -1,0 +1,16 @@
+{
+    "select_colletion": "Select a Collection",
+    "new_entry": "New Entry",
+    "entry_locked": "This entry is locked. Someone is already editing it.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteconfirm_text": "Do you really want to delete this enty?",
+    "yes": "Yes",
+    "no": "No",
+    "discard_changes": "Discard Changes",
+    "save": "Save",
+    "save_close": "Save and Close",
+    "entry_form_new": "New",
+    "internal_error": "Internal error while collecting form data.",
+    "unsaved_changes": "You have unsaved changes."
+}

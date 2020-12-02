@@ -38,7 +38,7 @@ export function buildCollectionSelectorActivity(onselect: (selection: string) =>
     return {
         element: div,
         name: "collection-selector",
-        title: "Select a Collection",
+        title: State.lang.select_colletion,
     }
 }
 

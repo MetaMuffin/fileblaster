@@ -10,6 +10,7 @@ import { Keybindings } from "./keybindings";
 
 
 async function init() {
+    await loadLanguage("en");
     document.body.classList.add("theme-light")
     State.ws = await createWS()
     Keybindings.init()
@@ -23,6 +24,12 @@ async function init() {
 export class State {
     public static ws: WS;
     public static scheme: Scheme;
+    public static lang: any;
+}
+
+export async function loadLanguage(lang:string) {
+    var res = await (await fetch(`/static/lang/${lang}.json`)).text()
+    State.lang = JSON.parse(res)
 }
 
 window.onload = init
